@@ -1,19 +1,22 @@
 import pyautogui
-from PIL import Image, ImageDraw
+from PIL import Image
 import cv2
 import numpy as np
-from time import time
+
+# Current Computer high score: 80
+
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
 # Goomba storm at least won't need the top screen at all, and only a portion of the bottom screen
-
-# Refers to the top screen of the DS
+"""
+# Refers to the top screen of the DS unneeded for goomba storm
 mainScreenScale=2.35
 mainScreenX=652
 mainScreenY=89
 mainScreenWidth=615
 mainScreenHeight=460
+"""
 
 # Refers to the bottom screen of the DS
 #subScreenScale=28/11
@@ -32,90 +35,62 @@ subScreenHeight=720
 
 
 runningGoombaSprites = []
+
 goombaRunningArea = [ subScreenX, subScreenY, subScreenWidth, subScreenHeight]
 
-
-def getScreenshot() -> Image:
+# Take a screenshot of the area the goombas are running through
+# return image in cv2.COLOR_BGR2GRAY format
+def getScreenshot():
     # Takes a screenshot based on which screen is required. 
     screenshot = pyautogui.screenshot(
         region= goombaRunningArea)
-    #screenshot.show()
     size = screenshot.size
     scale = subScreenScale
     # Scales image to match original DS screen size. 
     screenshot = screenshot.resize((int(size[0] / scale), 
         int(size[1] / scale) ), Image.Resampling.NEAREST)
-    return screenshot
+    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_BGR2GRAY)
 
-def loadRunningGoombaSprites():
+# Loads the goomba sprite "needle" images to find in the screenshots we take
+# currently, the one image of a goomba face is sufficient
+def loadGoombaSprites():
     goomba = Image.open(f"assets/Goomba Storm/goomba-face.png")
     runningGoombaSprites.append(goomba)
 
-def localToGlobalPosition(position) -> tuple:
-    # Converts a position on the subscreen to a position on the total screen. 
-    scale = subScreenScale
-    return (
-        ( position[0] * scale ) + subScreenX,
-        ( position[1] * scale ) + subScreenY
-    )
-
+# Moves the mouse to and clicks the location
+# bounds is in the format [x, y, w, h]
+# where x and y are only relative to the screenshot taken, not the postion of your very real ds monitor display
 def pressIcon(bounds):
     # Finds center of the icon. 
-    print(bounds)
+    #print(bounds)
     iconCenter = pyautogui.center(bounds)
+
     position = ( 
         ( iconCenter[0] * subScreenScale ) 
             + subScreenX,                 
         ( iconCenter[1] * subScreenScale ) 
             + subScreenY
     )
-    print(position)
+
     # Clicks on the icon. 
-    pyautogui.moveTo(position[0], position[1])
-    pyautogui.drag(0.0, 1.0, 0.15)
+    pyautogui.moveTo(position[0] + 125, position[1])
+    pyautogui.drag(0, 1, 0.15) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
 
-screenshot = getScreenshot()
-loadRunningGoombaSprites()
-"""
-try: 
-    stopWatch = time()
-    location = pyautogui.locate(runningGoombaSprites[0], screenshot, confidence=.5)
-    print("PyautoGui Locate Time:", round(time()-stopWatch,5))
-    pressIcon(location)
-except:
-    location = None
+# one time operation
+loadGoombaSprites()
+# convert our goomba sprite(s) to a needle image to be found in the screenshot
+# currently both needle and haystack are in grayscale
+needle = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)
+w, h = needle.shape[::-1]
 
-if location is not None:
-    # 3. Convert to OpenCV format (NumPy array)
-    screenshot_np = np.array(screenshot)
-    
-    # Convert RGB to BGR for OpenCV
-    screenshot_cv = cv2.cvtColor(screenshot_np, cv2.COLOR_RGB2BGR)
-    
-    # 4. Draw the rectangle
-    # The Box object contains (left, top, width, height)
-    x, y, width, height = location
-    cv2.rectangle(screenshot_cv, (x, y), (x + width, y + height), (0, 0, 255), 2) # Red box, 2 pixels thick
-    # 5. Display the image
-    #cv2.imshow("Located Image with Box", screenshot_cv)
-    #cv2.waitKey(0) # Wait for a key press to close the window
-    #print(localToGlobalPosition(location))
-else: print("Needle not found")
-"""
-
-template = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)#cv2.imread("assets/Goomba Storm/goomba-running1.png")
-img_rgb =cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-img_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_BGR2GRAY)
-
-w, h = template.shape[::-1]
-stopWatch = time()
-res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
-threshold = 0.7
-loc = np.where( res >= threshold)
-print("OpenCV Locate Time:", round(time()-stopWatch,5))
-for pt in zip(*loc[::-1]):
-    #print(pt)
-    #print(w)
-    #print(h)
-    pressIcon([pt[0], pt[1], w, h])
-    break
+# loop while playing
+while True:
+    # get screenshot of the area goombas are running through
+    haystack = getScreenshot()
+    res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where( res >= threshold)
+    for pt in zip(*loc[::-1]):
+        pressIcon([pt[0], pt[1], w, h])
+        break
+        
