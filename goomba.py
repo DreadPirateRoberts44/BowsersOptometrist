@@ -27,11 +27,11 @@ mainScreenHeight=460
 # maintain aspect raio. DS is 256/192
 
 # Using this for now, this is horizontal layout full bottom screen. Looking to reduce in scope, and/or replace with vertical
-subScreenScale=3.75
-subScreenX=960
-subScreenY=182
-subScreenWidth=960
-subScreenHeight=720
+subScreenScale=77/32
+subScreenX=652
+subScreenY=552
+subScreenWidth=616
+subScreenHeight=462
 
 
 runningGoombaSprites = []
@@ -73,7 +73,7 @@ def pressIcon(bounds):
     )
 
     # Clicks on the icon. 
-    pyautogui.moveTo(position[0] + 125, position[1])
+    pyautogui.moveTo(position[0] + 81, position[1])
     pyautogui.drag(0, 1, 0.15) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
 
 # one time operation
