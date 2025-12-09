@@ -87,7 +87,7 @@ while True:
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
-    loc = np.where( res >= threshold)
+    loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         pressIcon([pt[0], pt[1], w, h])
         break
