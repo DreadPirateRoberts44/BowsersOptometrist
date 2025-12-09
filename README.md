@@ -7,3 +7,5 @@ Issues detecting any goombas, seem to be with the sprites themselves, not the co
 Likely a size issue, or some issue with transparent pixels
 
 The mouse can now move to the position of a goomba
+
+The program detects goombas as they run and attempts to click them, however, the goombas move too fast and the program misses
