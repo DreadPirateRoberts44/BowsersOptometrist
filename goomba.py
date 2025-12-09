@@ -3,7 +3,7 @@ from PIL import Image
 import cv2
 import numpy as np
 
-# Current Computer high score: 80
+# Current Computer high score: 114
 
 
 # Designed to run in vertical mode (for best visual effect)
@@ -74,7 +74,7 @@ def pressIcon(bounds):
 
     # Clicks on the icon. 
     pyautogui.moveTo(position[0] + 81, position[1])
-    pyautogui.drag(0, 1, 0.15) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
+    pyautogui.drag(0, 1, 0.11) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
 
 # one time operation
 loadGoombaSprites()
