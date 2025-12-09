@@ -3,8 +3,7 @@ from PIL import Image
 import cv2
 import numpy as np
 
-# Current Computer high score: 80
-
+# Current Computer high score: 123
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -36,7 +35,7 @@ subScreenHeight=462
 
 runningGoombaSprites = []
 
-goombaRunningArea = [ subScreenX, subScreenY, subScreenWidth, subScreenHeight]
+goombaRunningArea = [ subScreenX, subScreenY + 158, 455, 240]
 
 # Take a screenshot of the area the goombas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -62,19 +61,18 @@ def loadGoombaSprites():
 # where x and y are only relative to the screenshot taken, not the postion of your very real ds monitor display
 def pressIcon(bounds):
     # Finds center of the icon. 
-    #print(bounds)
     iconCenter = pyautogui.center(bounds)
 
     position = ( 
         ( iconCenter[0] * subScreenScale ) 
             + subScreenX,                 
         ( iconCenter[1] * subScreenScale ) 
-            + subScreenY
+            + subScreenY + 158
     )
 
     # Clicks on the icon. 
     pyautogui.moveTo(position[0] + 81, position[1])
-    pyautogui.drag(0, 1, 0.15) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
+    pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
 
 # one time operation
 loadGoombaSprites()
@@ -89,7 +87,7 @@ while True:
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
-    loc = np.where( res >= threshold)
+    loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         pressIcon([pt[0], pt[1], w, h])
         break
