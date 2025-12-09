@@ -2,6 +2,7 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
+import time
 
 # Current Computer high score: 123
 
@@ -72,7 +73,10 @@ def pressIcon(bounds):
 
     # Clicks on the icon. 
     pyautogui.moveTo(position[0] + 81, position[1])
-    pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
+    pyautogui.mouseDown(_pause=False)
+    time.sleep(0.04)
+    pyautogui.mouseUp(_pause=False)
+    #pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
 
 # one time operation
 loadGoombaSprites()
@@ -88,7 +92,12 @@ while True:
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
+    lastx = 0
+    lasty = 0
     for pt in zip(*loc[::-1]):
+        if (pt[0] - lastx) < 5 and (pt[1] - lasty) < 5 : continue
         pressIcon([pt[0], pt[1], w, h])
-        break
+        lastx = pt[0]
+        lasty = pt[1]
+        
         
