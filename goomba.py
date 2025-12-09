@@ -2,6 +2,7 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
+import threading
 
 # Current Computer high score: 80
 
@@ -74,7 +75,7 @@ def pressIcon(bounds):
 
     # Clicks on the icon. 
     pyautogui.moveTo(position[0] + 81, position[1])
-    pyautogui.drag(0, 1, 0.15) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
+    pyautogui.drag(0, 1, 0.11) # I believe we must use a drag here, as just clicking is not fast enough for the ds to register as input
 
 # one time operation
 loadGoombaSprites()
@@ -89,8 +90,9 @@ while True:
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
-    loc = np.where( res >= threshold)
+    loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         pressIcon([pt[0], pt[1], w, h])
         break
+        
         
