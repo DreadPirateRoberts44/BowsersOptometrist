@@ -23,6 +23,7 @@ mainScreenHeight=460
 #subScreenHeight=318 # we likely can reduce this significantly
 # maintain aspect raio. DS is 256/192
 
+# Using this for now, this is horizontal layout full bottom screen. Looking to reduce in scope, and/or replace with vertical
 subScreenScale=3.75
 subScreenX=960
 subScreenY=182
@@ -58,16 +59,32 @@ def localToGlobalPosition(position) -> tuple:
         ( position[1] * scale ) + subScreenY
     )
 
+def pressIcon(bounds):
+    # Finds center of the icon. 
+    print(bounds)
+    iconCenter = pyautogui.center(bounds)
+    position = ( 
+        ( iconCenter[0] * subScreenScale ) 
+            + subScreenX,                 
+        ( iconCenter[1] * subScreenScale ) 
+            + subScreenY
+    )
+    print(position)
+    # Clicks on the icon. 
+    pyautogui.moveTo(position[0], position[1])
+    pyautogui.drag(0.0, 1.0, 0.15)
+
 screenshot = getScreenshot()
 loadRunningGoombaSprites()
-
+"""
 try: 
     stopWatch = time()
     location = pyautogui.locate(runningGoombaSprites[0], screenshot, confidence=.5)
     print("PyautoGui Locate Time:", round(time()-stopWatch,5))
+    pressIcon(location)
 except:
     location = None
-print(location)
+
 if location is not None:
     # 3. Convert to OpenCV format (NumPy array)
     screenshot_np = np.array(screenshot)
@@ -80,10 +97,11 @@ if location is not None:
     x, y, width, height = location
     cv2.rectangle(screenshot_cv, (x, y), (x + width, y + height), (0, 0, 255), 2) # Red box, 2 pixels thick
     # 5. Display the image
-    cv2.imshow("Located Image with Box", screenshot_cv)
-    cv2.waitKey(0) # Wait for a key press to close the window
-    print(localToGlobalPosition(location))
+    #cv2.imshow("Located Image with Box", screenshot_cv)
+    #cv2.waitKey(0) # Wait for a key press to close the window
+    #print(localToGlobalPosition(location))
 else: print("Needle not found")
+"""
 
 template = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)#cv2.imread("assets/Goomba Storm/goomba-running1.png")
 img_rgb =cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
@@ -96,6 +114,8 @@ threshold = 0.7
 loc = np.where( res >= threshold)
 print("OpenCV Locate Time:", round(time()-stopWatch,5))
 for pt in zip(*loc[::-1]):
-    cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
- 
-cv2.imwrite('res.png',img_rgb)
+    #print(pt)
+    #print(w)
+    #print(h)
+    pressIcon([pt[0], pt[1], w, h])
+    break
