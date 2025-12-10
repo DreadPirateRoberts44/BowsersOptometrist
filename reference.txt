@@ -1,0 +1,19 @@
+# Designed to run in vertical mode (for best visual effect)
+# This is very general, taken from the mario ds
+# Goomba storm at least won't need the top screen at all, and only a portion of the bottom screen
+"""
+# Refers to the top screen of the DS unneeded for goomba storm
+mainScreenScale=2.35
+mainScreenX=652
+mainScreenY=89
+mainScreenWidth=615
+mainScreenHeight=460
+"""
+
+# Refers to the bottom screen of the DS
+#subScreenScale=28/11
+#subScreenX=652 # this is definitely right
+#subScreenY=754
+#subScreenWidth=424 # we only need to cover the distance between bowser and madam bloque
+#subScreenHeight=318 # we likely can reduce this significantly
+# maintain aspect raio. DS is 256/192
