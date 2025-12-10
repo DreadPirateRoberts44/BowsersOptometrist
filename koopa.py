@@ -74,7 +74,7 @@ def testSpriteDetection():
     #moveBowser(koopaRunningArea[0], (y + 11) * subScreenScale + subScreenY + 158)
 
 def moveBowser(x,y):
-    time.sleep(.04)
+    time.sleep(.0325)
     pyautogui.moveTo(x,y)
 
 # one time operation
