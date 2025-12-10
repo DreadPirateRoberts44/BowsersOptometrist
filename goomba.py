@@ -72,13 +72,12 @@ def pressIcon(bounds, count):
             + subScreenY + 158
     )
 
+    standardOffset = 35
+    additionalOffset = 25
     # Clicks on the icon. 
-    #pyautogui.moveTo(position[0] + 81, position[1]) #x + 81
-    pyautogui.mouseDown(position[0] + 35, position[1], _pause=False) #+ 50
+    pyautogui.mouseDown(position[0] + standardOffset + count * additionalOffset, position[1], _pause=False)
     time.sleep(0.025)
-    pyautogui.mouseUp(position[0] + 35, position[1], _pause=False)
-    #time.sleep(.06)
-    #pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
+    pyautogui.mouseUp(position[0] + standardOffset + count * additionalOffset, position[1], _pause=False)
 
 # one time operation
 loadGoombaSprites()
@@ -86,8 +85,6 @@ loadGoombaSprites()
 # currently both needle and haystack are in grayscale
 needle = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)
 w, h = needle.shape[::-1]
-lastX = 0
-lasty = 0
 
 # loop while playing
 while True:
@@ -96,13 +93,10 @@ while True:
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    print(loc)
-    #goombasFoundThisScreenshot = 0
-    exit()
+    goombasFoundThisScreenshot = 0
+    
     for pt in zip(*loc[::-1]):
-        #if (abs(pt[0] - lastX) < 35) and (abs(pt[1] - lasty) < 35) : continue # if this is too close to the last goomba we hit, skip
-        pressIcon([pt[0], pt[1], w, h])
-        
-        break # only tap one goomba per screenshot
+        pressIcon([pt[0], pt[1], w, h], goombasFoundThisScreenshot)
+        goombasFoundThisScreenshot += 1
         
         
