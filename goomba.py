@@ -87,12 +87,21 @@ w, h = needle.shape[::-1]
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
-    haystack = getScreenshot()
+    try:
+        haystack = getScreenshot()
+    except:
+        exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
+    x = 0
+    y = 0
     for pt in zip(*loc[::-1]):
-        pressIcon([pt[0], pt[1], w, h])
-        break
+        #pressIcon([pt[0], pt[1], w, h])
+        if pt[0] > x:
+            x = pt[0]
+            y = pt[1]
+    if x == 0: continue
+    pressIcon([x,y,w,h])
         
         
