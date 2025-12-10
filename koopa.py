@@ -74,7 +74,7 @@ def testSpriteDetection():
     #moveBowser(koopaRunningArea[0], (y + 11) * subScreenScale + subScreenY + 158)
 
 def moveBowser(x,y):
-    time.sleep(.0325)
+    time.sleep(.025)
     pyautogui.moveTo(x,y)
 
 # one time operation
@@ -97,7 +97,10 @@ pyautogui.mouseDown(bowserX, boswerStartY, _pause=False)
 # loop while playing
 while True:
     # get screenshot of the area koopas are running through
-    haystack = getScreenshot()
+    try:
+        haystack = getScreenshot()
+    except:
+        exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
     loc = np.where(res >= threshold)
