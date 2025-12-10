@@ -4,7 +4,17 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 12
+# Current Computer high score: 13
+
+# first problems solved: 
+# being stupid
+# not adjusting the y value of koopa locations by the subscreen scale factor
+
+# Next problems:
+# score sucks
+# alignment of bowser and koopa shells (I'm grabbing middle of bowser aiming at middle of koopa, should that change?)
+# prediction of where shells will be
+# poor detection might cause shells to steal focus from each other
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
