@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 249
+# Current Computer high score: 399
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -60,7 +60,8 @@ def loadGoombaSprites():
 # Moves the mouse to and clicks the location
 # bounds is in the format [x, y, w, h]
 # where x and y are only relative to the screenshot taken, not the postion of your very real ds monitor display
-def pressIcon(bounds):
+# count is the number of other goombas found for a given screenshot
+def pressIcon(bounds, count):
     # Finds center of the icon. 
     iconCenter = pyautogui.center(bounds)
 
@@ -73,9 +74,9 @@ def pressIcon(bounds):
 
     # Clicks on the icon. 
     #pyautogui.moveTo(position[0] + 81, position[1]) #x + 81
-    pyautogui.mouseDown(position[0] + 81, position[1], _pause=False)
-    time.sleep(0.03)
-    pyautogui.mouseUp(position[0] + 81, position[1], _pause=False)
+    pyautogui.mouseDown(position[0] + 35, position[1], _pause=False) #+ 50
+    time.sleep(0.025)
+    pyautogui.mouseUp(position[0] + 35, position[1], _pause=False)
     #time.sleep(.06)
     #pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
 
@@ -95,12 +96,13 @@ while True:
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    
+    print(loc)
+    #goombasFoundThisScreenshot = 0
+    exit()
     for pt in zip(*loc[::-1]):
         #if (abs(pt[0] - lastX) < 35) and (abs(pt[1] - lasty) < 35) : continue # if this is too close to the last goomba we hit, skip
         pressIcon([pt[0], pt[1], w, h])
-        #lastX = pt[0]
-        #lasty = pt[1]
+        
         break # only tap one goomba per screenshot
         
         
