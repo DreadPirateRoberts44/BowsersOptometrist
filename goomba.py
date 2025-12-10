@@ -60,8 +60,7 @@ def loadGoombaSprites():
 # Moves the mouse to and clicks the location
 # bounds is in the format [x, y, w, h]
 # where x and y are only relative to the screenshot taken, not the postion of your very real ds monitor display
-# count is the number of other goombas found for a given screenshot
-def pressIcon(bounds, count):
+def pressIcon(bounds):
     # Finds center of the icon. 
     iconCenter = pyautogui.center(bounds)
 
@@ -73,11 +72,10 @@ def pressIcon(bounds, count):
     )
 
     standardOffset = 35
-    additionalOffset = 25
     # Clicks on the icon. 
-    pyautogui.mouseDown(position[0] + standardOffset + count * additionalOffset, position[1], _pause=False)
+    pyautogui.mouseDown(position[0] + standardOffset, position[1], _pause=False)
     time.sleep(0.025)
-    pyautogui.mouseUp(position[0] + standardOffset + count * additionalOffset, position[1], _pause=False)
+    pyautogui.mouseUp(position[0] + standardOffset, position[1], _pause=False)
 
 # one time operation
 loadGoombaSprites()
@@ -85,18 +83,19 @@ loadGoombaSprites()
 # currently both needle and haystack are in grayscale
 needle = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)
 w, h = needle.shape[::-1]
+noneFound = 0
 
 # loop while playing
-while True:
+while noneFound < 5:
     # get screenshot of the area goombas are running through
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    goombasFoundThisScreenshot = 0
-    
+    if len(loc[0]) == 0: noneFound += 1
+    else: noneFound = 0
     for pt in zip(*loc[::-1]):
-        pressIcon([pt[0], pt[1], w, h], goombasFoundThisScreenshot)
-        goombasFoundThisScreenshot += 1
+        pressIcon([pt[0], pt[1], w, h])
+        break
         
         
