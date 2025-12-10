@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 123
+# Current Computer high score: 249
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -72,10 +72,11 @@ def pressIcon(bounds):
     )
 
     # Clicks on the icon. 
-    pyautogui.moveTo(position[0] + 81, position[1])
-    pyautogui.mouseDown(_pause=False)
-    time.sleep(0.04)
-    pyautogui.mouseUp(_pause=False)
+    #pyautogui.moveTo(position[0] + 81, position[1]) #x + 81
+    pyautogui.mouseDown(position[0] + 81, position[1], _pause=False)
+    time.sleep(0.03)
+    pyautogui.mouseUp(position[0] + 81, position[1], _pause=False)
+    #time.sleep(.06)
     #pyautogui.drag(0, 1, 0.10001) # we have to hold the drag for at least > .1
 
 # one time operation
@@ -84,6 +85,8 @@ loadGoombaSprites()
 # currently both needle and haystack are in grayscale
 needle = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)
 w, h = needle.shape[::-1]
+lastX = 0
+lasty = 0
 
 # loop while playing
 while True:
@@ -92,12 +95,12 @@ while True:
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    lastx = 0
-    lasty = 0
+    
     for pt in zip(*loc[::-1]):
-        if (pt[0] - lastx) < 5 and (pt[1] - lasty) < 5 : continue
+        #if (abs(pt[0] - lastX) < 35) and (abs(pt[1] - lasty) < 35) : continue # if this is too close to the last goomba we hit, skip
         pressIcon([pt[0], pt[1], w, h])
-        lastx = pt[0]
-        lasty = pt[1]
+        #lastX = pt[0]
+        #lasty = pt[1]
+        break # only tap one goomba per screenshot
         
         
