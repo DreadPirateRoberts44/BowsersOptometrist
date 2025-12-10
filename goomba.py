@@ -83,17 +83,14 @@ loadGoombaSprites()
 # currently both needle and haystack are in grayscale
 needle = cv2.cvtColor(np.array(runningGoombaSprites[0]), cv2.COLOR_BGR2GRAY)
 w, h = needle.shape[::-1]
-noneFound = 0
 
 # loop while playing
-while noneFound < 5:
+while True:
     # get screenshot of the area goombas are running through
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    if len(loc[0]) == 0: noneFound += 1
-    else: noneFound = 0
     for pt in zip(*loc[::-1]):
         pressIcon([pt[0], pt[1], w, h])
         break
