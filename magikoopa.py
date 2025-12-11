@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 51
+# Current Computer high score: 95
 
 # Next problems:
 # score sucks
@@ -39,30 +39,48 @@ def getScreenshot():
     # Scales image to match original DS screen size. 
     screenshot = screenshot.resize((int(size[0] / scale), 
         int(size[1] / scale) ), Image.Resampling.NEAREST)
-    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_BGR2GRAY)
+    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_BGR2RGB)
 
 # Loads the magikoopa sprite "needle" images to find in the screenshots we take
 # currently, the one image of a magikoopa face is sufficient
 def loadMagikoopaSprites():
-    magikoopa = Image.open(f"assets/Magikoopa Mob/magikoopa-arm.png")
+    magikoopa = Image.open(f"assets/Magikoopa Mob/magikoopa-magic.png")
+    size = magikoopa.size
+    scale = subScreenScale
+    # Scales image to match original DS screen size. 
+    magikoopa = magikoopa.resize((int(size[0] / scale), 
+        int(size[1] / scale) ), Image.Resampling.NEAREST)
     magikoopaSprites.append(magikoopa)
 
 def testSpriteDetection():
-    needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2GRAY)
+    needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2RGB)
     haystack = getScreenshot()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
 
     img_rgb =cv2.cvtColor(haystack, cv2.COLOR_RGB2BGR)
 
-    w, h = needle.shape[::-1]
+    w, h = needle.shape[1], needle.shape[0]
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
     loc = np.where(res >= threshold)
+    pts = []
     for pt in zip(*loc[::-1]):
+        if len(pts) == 0:
+            pts.append(pt)
+            continue
+        usePoint = True
+        for usedPt in pts:
+            if abs(pt[0]-usedPt[0]) < 5 and abs(pt[1]-usedPt[1]) < 5:
+                usePoint = False
+                break
+        if usePoint: pts.append(pt)
+
+    for pt in pts:
         cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
     cv2.imshow('Magikoopa', img_rgb)
     cv2.waitKey(0)
     print(loc)
+    print(pts)
 
 
 def dragTo(x,y):
@@ -83,8 +101,8 @@ pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
 
 # convert our magikoopa sprite(s) to a needle image to be found in the screenshot
 # currently both needle and haystack are in grayscale
-needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2GRAY)
-w, h = needle.shape[::-1]
+needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2RGB)
+w, h = needle.shape[1], needle.shape[0]
 
 # loop while playing
 while True:
@@ -95,6 +113,18 @@ while True:
         exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
+    pts = []
     loc = np.where(res >= threshold)
+    pts = []
     for pt in zip(*loc[::-1]):
-        dragTo(pt[0], pt[1] - 10)
+        if len(pts) == 0:
+            pts.append(pt)
+            continue
+        usePoint = True
+        for usedPt in pts:
+            if abs(pt[0]-usedPt[0]) < 5 and abs(pt[1]-usedPt[1]) < 5:
+                usePoint = False
+                break
+        if usePoint: pts.append(pt)
+    for pt in pts:
+        dragTo(pt[0], pt[1])
