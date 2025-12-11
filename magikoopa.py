@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score:
+# Current Computer high score: 51
 
 # Next problems:
 # score sucks
@@ -24,7 +24,9 @@ subScreenHeight=462
 
 magikoopaSprites = []
 
-koopaRunningArea = [ subScreenX, subScreenY + 140, 455, 300]
+screenshotYOffset = 50
+
+koopaRunningArea = [ subScreenX, subScreenY + screenshotYOffset, 455, 375]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -65,7 +67,7 @@ def testSpriteDetection():
 
 def dragTo(x,y):
     x = x * subScreenScale + subScreenX
-    y = y * subScreenScale + subScreenY + 140      
+    y = y * subScreenScale + subScreenY + screenshotYOffset      
     time.sleep(.025)
     pyautogui.moveTo(x,y)
 
@@ -74,7 +76,7 @@ def dragTo(x,y):
 loadMagikoopaSprites()
 
 #testSpriteDetection()
-
+#exit()
 #we never need to let up (it also doesn't matter where the mouse starts, at least if it's on screen)
 pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
 
@@ -95,4 +97,4 @@ while True:
     threshold = 0.8
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
-        dragTo(pt[0], pt[1])
+        dragTo(pt[0], pt[1] - 10)
