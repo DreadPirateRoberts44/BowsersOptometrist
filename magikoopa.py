@@ -97,7 +97,7 @@ needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2RGB)
 w, h = needle.shape[1], needle.shape[0]
 
 # every 9 rounds adds a magikoopa (at least to a total of 6)
-roundNumber = 0
+roundNumber = 1
 numberOfMagikoopas = 3
 
 # loop while playing
@@ -117,11 +117,23 @@ while True:
             continue
         usePoint = True
         for usedPt in pts:
-            if abs(pt[0]-usedPt[0]) < 5 and abs(pt[1]-usedPt[1]) < 5:
+            if abs(pt[0]-usedPt[0]) < 10 and abs(pt[1]-usedPt[1]) < 10:
                 usePoint = False
                 break
-        if usePoint: pts.append(pt)
+        if usePoint: 
+            i = 0
+            while i < len(pts):
+                if pt[0] < pts[i][0]: 
+                    pts.insert(i,pt)
+                    break
+                i += 1
+            if (i == len(pts)): pts.append(pt)
+    #if len(pts) < numberOfMagikoopas: continue
     for pt in pts:
         dragTo(pt[0] + 3, pt[1] + 5)
+    #dragTo(10,10)
+
+    #if roundNumber % 9 == 0 and roundNumber < 30: numberOfMagikoopas += 1
+    #roundNumber += 1 
     
     
