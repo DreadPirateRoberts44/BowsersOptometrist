@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 13
+# Current Computer high score: 40
 
 # first problems solved: 
 # being stupid
@@ -63,15 +63,31 @@ def testSpriteDetection():
     x = 10000
     y = 0
     for pt in zip(*loc[::-1]):
-        cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+        #cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
         if pt[0] < x:
             x = pt[0]
             y = pt[1]
+    pt = (x,y)
+    print(pt)
+    cv2.rectangle(img_rgb, pt, (x + w, y + h), (0,0,255), 2)
+    cv2.rectangle(img_rgb, (140,60), (140 + w, 60 + h), (0,0,255), 2)
+    intercept = koopaYIntercept(x,y,140,60)
+    print(intercept)
+    cv2.rectangle(img_rgb, (0,intercept), (0 + w, intercept + h), (0,0,255), 2)
     cv2.imshow('Koopa', img_rgb)
     cv2.waitKey(0)
-    #print(loc)
+    print(loc)
     #print(x, y)
     #moveBowser(koopaRunningArea[0], (y + 11) * subScreenScale + subScreenY + 158)
+
+def calculateSlope(x1,y1,x2,y2):
+    m = int((y2 - y1) / (x2 - x1))
+    return m
+
+def koopaYIntercept(x1,y1,x2,y2):
+    m = calculateSlope(x1,y1,x2,y2)
+    intercept = m * (-x1) + y1
+    return intercept
 
 def moveBowser(x,y):
     time.sleep(.025)
@@ -84,7 +100,8 @@ loadKoopaSprites()
 # Initial mouse down coordinates of bowser
 bowserX= subScreenX + 30
 boswerStartY = 822
-
+broqueX = 180 # relative to her screenshot
+broqueY = 60
 
 # convert our koopa sprite(s) to a needle image to be found in the screenshot
 # currently both needle and haystack are in grayscale
@@ -111,6 +128,7 @@ while True:
             x = pt[0]
             y = pt[1]
     if x == 10000: continue
+    y = koopaYIntercept(x,y,broqueX,broqueY)
     moveBowser(bowserX, (y + 11) * subScreenScale + subScreenY + 158)
         
         
