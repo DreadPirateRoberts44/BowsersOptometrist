@@ -2,15 +2,8 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-import time
 
-# Current Computer high score: 117
-
-# Next problems:
-# score sucks
-# alignment of bowser and koopa shells (I'm grabbing middle of bowser aiming at middle of koopa, should that change?)
-# prediction of where shells will be
-# poor detection might cause shells to steal focus from each other
+# Current Computer high score: 177
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -44,7 +37,7 @@ def getScreenshot():
 # Loads the magikoopa sprite "needle" images to find in the screenshots we take
 # currently, the one image of a magikoopa face is sufficient
 def loadMagikoopaSprites():
-    magikoopa = Image.open(f"assets/Magikoopa Mob/magikoopa-magic.png")
+    magikoopa = Image.open(f"assets/Magikoopa Mob/magikoopa-magic2.png")
     size = magikoopa.size
     scale = subScreenScale
     # Scales image to match original DS screen size. 
@@ -103,6 +96,10 @@ pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
 needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2RGB)
 w, h = needle.shape[1], needle.shape[0]
 
+# every 9 rounds adds a magikoopa (at least to a total of 6)
+roundNumber = 0
+numberOfMagikoopas = 3
+
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
@@ -112,7 +109,6 @@ while True:
         exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
-    pts = []
     loc = np.where(res >= threshold)
     pts = []
     for pt in zip(*loc[::-1]):
@@ -127,3 +123,5 @@ while True:
         if usePoint: pts.append(pt)
     for pt in pts:
         dragTo(pt[0] + 3, pt[1] + 5)
+    
+    
