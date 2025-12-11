@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 95
+# Current Computer high score: 117
 
 # Next problems:
 # score sucks
@@ -86,7 +86,6 @@ def testSpriteDetection():
 def dragTo(x,y):
     x = x * subScreenScale + subScreenX
     y = y * subScreenScale + subScreenY + screenshotYOffset      
-    time.sleep(.025)
     pyautogui.moveTo(x,y)
 
 
@@ -127,4 +126,4 @@ while True:
                 break
         if usePoint: pts.append(pt)
     for pt in pts:
-        dragTo(pt[0], pt[1])
+        dragTo(pt[0] + 3, pt[1] + 5)
