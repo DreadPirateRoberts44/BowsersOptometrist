@@ -24,7 +24,7 @@ subScreenHeight=462
 
 magikoopaSprites = []
 
-koopaRunningArea = [ subScreenX, subScreenY + 158, 455, 240]
+koopaRunningArea = [ subScreenX, subScreenY + 140, 455, 300]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -63,8 +63,36 @@ def testSpriteDetection():
     print(loc)
 
 
+def dragTo(x,y):
+    x = x * subScreenScale + subScreenX
+    y = y * subScreenScale + subScreenY + 140      
+    time.sleep(.025)
+    pyautogui.moveTo(x,y)
+
+
 # one time operation
 loadMagikoopaSprites()
-testSpriteDetection()
 
-        
+#testSpriteDetection()
+
+#we never need to let up (it also doesn't matter where the mouse starts, at least if it's on screen)
+pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
+
+
+# convert our magikoopa sprite(s) to a needle image to be found in the screenshot
+# currently both needle and haystack are in grayscale
+needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2GRAY)
+w, h = needle.shape[::-1]
+
+# loop while playing
+while True:
+    # get screenshot of the area goombas are running through
+    try:
+        haystack = getScreenshot()
+    except:
+        exit()
+    res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.8
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):
+        dragTo(pt[0], pt[1])
