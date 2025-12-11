@@ -17,9 +17,10 @@ subScreenHeight=462
 
 magikoopaSprites = []
 
-screenshotYOffset = 50
-
-koopaRunningArea = [ subScreenX, subScreenY + screenshotYOffset, 455, 375]
+screenshotYOffset = 75
+screenshotXOffset = 75
+# low bound is subY + 50 + 275
+koopaRunningArea = [ subScreenX + screenshotXOffset, subScreenY + screenshotYOffset, 335, 260]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -77,7 +78,7 @@ def testSpriteDetection():
 
 
 def dragTo(x,y):
-    x = x * subScreenScale + subScreenX
+    x = x * subScreenScale + subScreenX + screenshotXOffset
     y = y * subScreenScale + subScreenY + screenshotYOffset      
     pyautogui.moveTo(x,y)
 
@@ -111,9 +112,17 @@ while True:
     threshold = 0.8
     loc = np.where(res >= threshold)
     pts = []
+    minX = 1000
+    minY = 1000
+    maxX = 0
+    maxY = 0
     for pt in zip(*loc[::-1]):
         if len(pts) == 0:
             pts.append(pt)
+            minX = pt[0]
+            maxX = pt[0]
+            minY = pt[1]
+            maxY = pt[1]
             continue
         usePoint = True
         for usedPt in pts:
@@ -121,19 +130,25 @@ while True:
                 usePoint = False
                 break
         if usePoint: 
-            i = 0
-            while i < len(pts):
-                if pt[0] < pts[i][0]: 
-                    pts.insert(i,pt)
-                    break
-                i += 1
-            if (i == len(pts)): pts.append(pt)
-    #if len(pts) < numberOfMagikoopas: continue
+            pts.append(pt)
+            if pt[0] < minX: minX = pt[0]
+            if pt[0] > maxX: maxX = pt[0]
+            if pt[1] < minY: minY = pt[1]
+            if pt[1] > maxY: maxY = pt[1]
+    
+    if len(pts) < numberOfMagikoopas: continue
+    
+    # if difference is bigger vertically, sort top to bottom, else sort left to right
+    if maxY - minY > maxX - minX:
+        pts.sort(key=lambda x: x[1])
+    else:
+        pts.sort()
+
     for pt in pts:
         dragTo(pt[0] + 3, pt[1] + 5)
-    #dragTo(10,10)
+    dragTo(-10,50)
 
-    #if roundNumber % 9 == 0 and roundNumber < 30: numberOfMagikoopas += 1
-    #roundNumber += 1 
+    if roundNumber % 9 == 0 and roundNumber < 30: numberOfMagikoopas += 1
+    roundNumber += 1 
     
     
