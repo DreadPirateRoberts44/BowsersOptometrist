@@ -2,6 +2,7 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
+import time
 
 # Current Computer high score: 177
 
@@ -81,6 +82,16 @@ def dragTo(x,y):
     y = y * subScreenScale + subScreenY + screenshotYOffset      
     pyautogui.moveTo(x,y)
 
+# this doens't work even a little for some reason
+def clickSpell(x,y):
+    x = x * subScreenScale + subScreenX
+    y = y * subScreenScale + subScreenY + screenshotYOffset      
+    pyautogui.moveTo(x,y)
+    pyautogui.drag(0.0, 1.0, 0.15)
+    #doesn't work at all
+    #pyautogui.mouseDown(x * subScreenScale + subScreenX, y, _pause=False)
+    #time.sleep(0.1)
+    #pyautogui.mouseUp(x * subScreenScale + subScreenX + 1, y * subScreenScale + subScreenY + screenshotYOffset + 1, _pause=False)
 
 # one time operation
 loadMagikoopaSprites()
@@ -88,7 +99,7 @@ loadMagikoopaSprites()
 #testSpriteDetection()
 #exit()
 #we never need to let up (it also doesn't matter where the mouse starts, at least if it's on screen)
-pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
+#pyautogui.mouseDown(subScreenX + 30, subScreenY + 30, _pause=False)
 
 
 # convert our magikoopa sprite(s) to a needle image to be found in the screenshot
@@ -97,8 +108,8 @@ needle = cv2.cvtColor(np.array(magikoopaSprites[0]), cv2.COLOR_BGR2RGB)
 w, h = needle.shape[1], needle.shape[0]
 
 # every 9 rounds adds a magikoopa (at least to a total of 6)
-roundNumber = 0
-numberOfMagikoopas = 3
+#roundNumber = 0
+#numberOfMagikoopas = 3
 
 # loop while playing
 while True:

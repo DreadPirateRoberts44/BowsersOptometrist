@@ -71,11 +71,11 @@ def pressIcon(bounds):
             + subScreenY + 158
     )
 
-    standardOffset = 35
+    runSpeedOffset = 35
     # Clicks on the icon. 
-    pyautogui.mouseDown(position[0] + standardOffset, position[1], _pause=False)
+    pyautogui.mouseDown(position[0] + runSpeedOffset, position[1], _pause=False)
     time.sleep(0.025)
-    pyautogui.mouseUp(position[0] + standardOffset, position[1], _pause=False)
+    pyautogui.mouseUp(position[0] + runSpeedOffset, position[1], _pause=False)
 
 # one time operation
 loadGoombaSprites()
