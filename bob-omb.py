@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import time
 
-# Current Computer high score: 399
+# Current Computer high score: 165
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -114,6 +114,7 @@ def moveBomb(x,y, madameBroqueY):
     y = y * subScreenScale + subScreenY + screenshotYOffset   
     madameBroqueY = madameBroqueY * subScreenScale + subScreenY + screenshotYOffset   
     pyautogui.mouseDown(x, y, _pause=False)
+    time.sleep(.03)
     pyautogui.moveTo(subScreenX + 130,madameBroqueY)
     pyautogui.mouseUp(subScreenX + 130,madameBroqueY)
     
