@@ -108,8 +108,8 @@ def moveBomb(x,y, madameBroqueY):
     y = y * subScreenScale + subScreenY + screenshotYOffset   
     madameBroqueY = madameBroqueY * subScreenScale + subScreenY + screenshotYOffset   
     pyautogui.mouseDown(x, y, _pause=False)
-    pyautogui.moveTo(x,madameBroqueY)
-    pyautogui.mouseUp(x,madameBroqueY)
+    pyautogui.moveTo(subScreenX + 130,madameBroqueY)
+    pyautogui.mouseUp(subScreenX + 130,madameBroqueY)
     
 
 loadBobombSprites()
