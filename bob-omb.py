@@ -141,7 +141,10 @@ while True:
     res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    if len(loc)>3: print(loc)
+    pts = []
     for pt in zip(*loc[::-1]):
         if abs(y - (pt[1] + h2/2)) > 5:
-            moveBomb(pt[0],pt[1] + h2/2, y)
+            pts.append(pt)
+    pts.sort(key= lambda x: abs(y-x[1]))
+    for pt in pts:
+        moveBomb(pt[0],pt[1] + h2/2, y)
