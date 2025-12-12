@@ -35,7 +35,7 @@ subScreenHeight=462
 
 bobombSprites = []
 screenshotYOffset = 135
-bobombRunningArea = [subScreenX, subScreenY + screenshotYOffset, 130, 240]
+bobombRunningArea = [subScreenX, subScreenY + screenshotYOffset, 130, 260]
 
 # for bob-omb blitz, we also care where madame is
 madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 400, 240]
@@ -58,11 +58,17 @@ def getScreenshot(isBobomb):
 # Loads the bob-omb sprite "needle" images to find in the screenshots we take
 # currently, the one image of a bob-omb face is sufficient
 def loadBobombSprites():
-    bobomb = Image.open(f"assets/Bob-omb Blitz/bob-omb-back.png")
+    bobomb = Image.open(f"assets/Bob-omb Blitz/bob-omb-full.png")
+    size = bobomb.size
+    scale = subScreenScale
+    # Scales image to match original DS screen size. 
+    bobomb = bobomb.resize((int(size[0] / scale), 
+        int(size[1] / scale) ), Image.Resampling.NEAREST)
+    bobomb = cv2.cvtColor(np.array(bobomb), cv2.COLOR_BGR2GRAY)
     bobombSprites.append(bobomb)
 
 def testSpriteDetection():
-    needle = cv2.cvtColor(np.array(bobombSprites[0]), cv2.COLOR_BGR2GRAY)
+    needle = bobombSprites[0]
     haystack = getScreenshot(True)
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
 
@@ -70,7 +76,7 @@ def testSpriteDetection():
 
     w, h = needle.shape[::-1]
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
+    threshold = 0.8
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
@@ -114,7 +120,7 @@ def moveBomb(x,y, madameBroqueY):
 
 loadBobombSprites()
 madameNeedle = loadMadameSprite()
-bobombNeedle = cv2.cvtColor(np.array(bobombSprites[0]), cv2.COLOR_BGR2GRAY)
+bobombNeedle = bobombSprites[0]
 #testMadameDetection(madameNeedle)
 #testSpriteDetection()
 #exit()
@@ -141,7 +147,6 @@ while True:
     res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    if len(loc)>3: print(loc)
     for pt in zip(*loc[::-1]):
-        if abs(y - (pt[1] + h2/2)) > 5:
-            moveBomb(pt[0],pt[1] + h2/2, y)
+        moveBomb(pt[0],pt[1] + h2/2, y)
+        break
