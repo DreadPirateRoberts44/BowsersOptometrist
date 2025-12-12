@@ -34,11 +34,11 @@ subScreenWidth=616
 subScreenHeight=462
 
 bobombSprites = []
-
-bobombRunningArea = [subScreenX, subScreenY + 158, 130, 240]
+screenshotYOffset = 135
+bobombRunningArea = [subScreenX, subScreenY + screenshotYOffset, 130, 240]
 
 # for bob-omb blitz, we also care where madame is
-madameArea = [subScreenX + 200, subScreenY + 135, 300, 240]
+madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 300, 240]
 
 # Take a screenshot of the area the bob-ombs are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -103,8 +103,41 @@ def loadMadameSprite():
         int(size[1] / scale) ), Image.Resampling.NEAREST)
     return cv2.cvtColor(np.array(madame), cv2.COLOR_BGR2GRAY)
 
+def moveBomb(x,y, madameBroqueY):
+    x = x * subScreenScale + subScreenX
+    y = y * subScreenScale + subScreenY + screenshotYOffset   
+    madameBroqueY = madameBroqueY * subScreenScale + subScreenY + screenshotYOffset   
+    pyautogui.mouseDown(x, y, _pause=False)
+    pyautogui.moveTo(x,madameBroqueY)
+    pyautogui.mouseUp(x,madameBroqueY)
+    
+
 loadBobombSprites()
-testSpriteDetection()
-madame = loadMadameSprite()
-testMadameDetection(madame)
-exit()
+madameNeedle = loadMadameSprite()
+bobombNeedle = cv2.cvtColor(np.array(bobombSprites[0]), cv2.COLOR_BGR2GRAY)
+
+w, h = madameNeedle.shape[::-1]
+
+# loop while playing
+while True:
+    # get screenshot of the area goombas are running through
+    try:
+        bombhaystack = getScreenshot(True)
+        madameHaystack = getScreenshot(False)
+    except:
+        exit()
+    # Determine Madame Y position
+    y = 0
+    res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.8
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):
+        y = pt[1] + h
+        break
+    # Find all bob-ombs
+    res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.75
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):
+        if abs(y - pt[1]) > 10:
+            moveBomb(pt[0],pt[1], y)
