@@ -38,7 +38,7 @@ screenshotYOffset = 135
 bobombRunningArea = [subScreenX, subScreenY + screenshotYOffset, 130, 240]
 
 # for bob-omb blitz, we also care where madame is
-madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 300, 240]
+madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 400, 240]
 
 # Take a screenshot of the area the bob-ombs are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -70,7 +70,7 @@ def testSpriteDetection():
 
     w, h = needle.shape[::-1]
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.75
+    threshold = 0.7
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
@@ -115,9 +115,12 @@ def moveBomb(x,y, madameBroqueY):
 loadBobombSprites()
 madameNeedle = loadMadameSprite()
 bobombNeedle = cv2.cvtColor(np.array(bobombSprites[0]), cv2.COLOR_BGR2GRAY)
+#testMadameDetection(madameNeedle)
+#testSpriteDetection()
+#exit()
 
 w, h = madameNeedle.shape[::-1]
-
+w2, h2 = bobombNeedle.shape[::-1]
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
@@ -136,8 +139,9 @@ while True:
         break
     # Find all bob-ombs
     res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.75
+    threshold = 0.7
     loc = np.where(res >= threshold)
+    if len(loc)>3: print(loc)
     for pt in zip(*loc[::-1]):
-        if abs(y - pt[1]) > 10:
-            moveBomb(pt[0],pt[1], y)
+        if abs(y - (pt[1] + h2/2)) > 5:
+            moveBomb(pt[0],pt[1] + h2/2, y)
