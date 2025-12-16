@@ -113,8 +113,8 @@ def moveBomb(x,y, madameBroqueY):
     x = x * subScreenScale + subScreenX
     y = y * subScreenScale + subScreenY + screenshotYOffset   
     madameBroqueY = madameBroqueY * subScreenScale + subScreenY + screenshotYOffset   
-    pyautogui.mouseDown(x, y, _pause=False)
-    time.sleep(.01) # this is still a little too fast, so it will occassionally miss. But for being faster, the trade off is worth it. Room to optimize
+    pyautogui.mouseDown(x, y)
+    #time.sleep(.01) # this is still a little too fast, so it will occassionally miss. But for being faster, the trade off is worth it. Room to optimize
     pyautogui.moveTo(subScreenX + 130,madameBroqueY)
     pyautogui.mouseUp(subScreenX + 130,madameBroqueY)
     
@@ -122,12 +122,15 @@ def moveBomb(x,y, madameBroqueY):
 loadBobombSprites()
 madameNeedle = loadMadameSprite()
 bobombNeedle = bobombSprites[0]
+pyautogui.PAUSE = .05
 #testMadameDetection(madameNeedle)
 #testSpriteDetection()
 #exit()
 
 w, h = madameNeedle.shape[::-1]
 w2, h2 = bobombNeedle.shape[::-1]
+madameY = 0
+bombLocations = [ (22, 89), (30, 73), (25, 58), (20, 44), (15, 31)]
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
@@ -137,17 +140,17 @@ while True:
     except:
         exit()
     # Determine Madame Y position
-    y = 0
     res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
-        y = pt[1] + h
+        madameY = pt[1] + h
         break
-    # Find all bob-ombs
+
+     # Find all bob-ombs
     res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
-    for pt in zip(*loc[::-1]):
-        moveBomb(pt[0],pt[1] + h2/2, y)
-        break
+    if len(loc[0]) == 0: continue
+    for pt in bombLocations:
+        moveBomb(pt[0],pt[1] + h2/2, madameY)
