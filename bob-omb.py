@@ -2,9 +2,9 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-import time
+from time import sleep
 
-# Current Computer high score: 176
+# Current Computer high score: 446
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -35,10 +35,10 @@ subScreenHeight=462
 
 bobombSprites = []
 screenshotYOffset = 135
-bobombRunningArea = [subScreenX, subScreenY + screenshotYOffset, 130, 260]
+bobombRunningArea = [subScreenX + 75, subScreenY + screenshotYOffset + 200, 50, 75]
 
 # for bob-omb blitz, we also care where madame is
-madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 400, 240]
+madameArea = [subScreenX + 200, subScreenY + screenshotYOffset, 400, 320]
 
 # Take a screenshot of the area the bob-ombs are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -113,8 +113,8 @@ def moveBomb(x,y, madameBroqueY):
     x = x * subScreenScale + subScreenX
     y = y * subScreenScale + subScreenY + screenshotYOffset   
     madameBroqueY = madameBroqueY * subScreenScale + subScreenY + screenshotYOffset   
-    pyautogui.mouseDown(x, y, _pause=False)
-    time.sleep(.01) # this is still a little too fast, so it will occassionally miss. But for being faster, the trade off is worth it. Room to optimize
+    pyautogui.mouseDown(x, y)
+    #time.sleep(.01) # this is still a little too fast, so it will occassionally miss. But for being faster, the trade off is worth it. Room to optimize
     pyautogui.moveTo(subScreenX + 130,madameBroqueY)
     pyautogui.mouseUp(subScreenX + 130,madameBroqueY)
     
@@ -122,32 +122,42 @@ def moveBomb(x,y, madameBroqueY):
 loadBobombSprites()
 madameNeedle = loadMadameSprite()
 bobombNeedle = bobombSprites[0]
+pyautogui.PAUSE = .05
 #testMadameDetection(madameNeedle)
 #testSpriteDetection()
 #exit()
 
 w, h = madameNeedle.shape[::-1]
 w2, h2 = bobombNeedle.shape[::-1]
+madameY = 0
+bombLocations = [ (35, 89), (30, 73), (25, 58), (20, 44), (15, 31), (10, 15)]
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
     try:
         bombhaystack = getScreenshot(True)
-        madameHaystack = getScreenshot(False)
     except:
         exit()
-    # Determine Madame Y position
-    y = 0
-    res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8
-    loc = np.where(res >= threshold)
-    for pt in zip(*loc[::-1]):
-        y = pt[1] + h
-        break
-    # Find all bob-ombs
+
+    # Determine Bob-ombs are ready
     res = cv2.matchTemplate(bombhaystack,bobombNeedle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where(res >= threshold)
+    if len(loc[0]) == 0: continue
+
+    sleep(.05)
+    # fails to recognize in bottom right corner
+    madameHaystack = getScreenshot(False)
+
+    # Determine Madame Y position
+    res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.9
+    loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
-        moveBomb(pt[0],pt[1] + h2/2, y)
+        madameY = pt[1] + h
         break
+    
+    print(loc)
+
+    for pt in bombLocations:
+        moveBomb(pt[0],pt[1] + h2/2, madameY)
