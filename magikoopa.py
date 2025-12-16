@@ -2,9 +2,9 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import time
+from time import time, sleep
 
-# Current Computer high score: 177
+# Current Computer high score: 345
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -15,6 +15,7 @@ subScreenY=552
 subScreenWidth=616
 subScreenHeight=462
 
+refreshRate = .1
 
 magikoopaSprites = []
 
@@ -90,14 +91,18 @@ def dragTo(x,y, dragTime):
     pyautogui.moveTo(x,y, duration=dragTime)
 
 
+
+#best so far includes the pause on drag, but with very minor pause. 
+
+
 # one time operation
 loadMagikoopaSprites()
-
+pyautogui.PAUSE = .03
 #testSpriteDetection()
 #exit()
 #we never need to let up (it also doesn't matter where the mouse starts, at least if it's on screen)
 pyautogui.moveTo(subScreenX + 30, subScreenY + 30)
-
+pyautogui.mouseDown(_pause = False)
 
 # convert our magikoopa sprite(s) to a needle image to be found in the screenshot
 # currently both needle and haystack are in grayscale
@@ -108,24 +113,29 @@ w, h = needle.shape[1], needle.shape[0]
 roundNumber = 1
 numberOfMagikoopas = 3
 
+#refreshTime = time()
+pts = []
 # loop while playing
 while True:
     # get screenshot of the area goombas are running through
-    stopWatch = time()
+    #stopWatch = time()
     try:
+        #diff = time() - refreshTime
+        #sleep(max(diff, 0))
         haystack = getScreenshot()
+        #refreshTime = time()
     except:
         exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
     loc = np.where(res >= threshold)
     #if len(loc[0])>0: print("Image Detection Time: ", round(time()-stopWatch,5))
-    pts = []
+    
     minX = 1000
     minY = 1000
     maxX = 0
     maxY = 0
-    stopWatch = time()
+    #stopWatch = time()
     for pt in zip(*loc[::-1]):
         if len(pts) == 0:
             pts.append(pt)
@@ -146,21 +156,22 @@ while True:
             if pt[1] < minY: minY = pt[1]
             if pt[1] > maxY: maxY = pt[1]
     
-    if len(pts) < numberOfMagikoopas: continue
-    print("Duplicate Removal Time: ", round(time()-stopWatch,5))
+    #if len(pts) < numberOfMagikoopas: continue
+    #print("Duplicate Removal Time: ", round(time()-stopWatch,5))
     # if difference is bigger vertically, sort top to bottom, else sort left to right
-    stopWatch = time()
+    #stopWatch = time()
     if maxY - minY > maxX - minX:
         pts.sort(key=lambda x: x[1])
     else:
         pts.sort()
-    print("Sort Time: ", round(time()-stopWatch,5))
+    #print("Sort Time: ", round(time()-stopWatch,5))
     
-
+    
     # Identify lines and remove points
     times = [0]
     i = 0
-    print(pts)
+    #print(pts)
+    """
     while i + 2 < len(pts):
         m = calculateSlope(pts[i + 2][0],pts[i + 2][1], pts[i][0],pts[i][1])
         y1 = m * (pts[i + 1][0] - pts[i][0]) + pts[i][1]
@@ -173,17 +184,19 @@ while True:
     times.append(0)
     #print(pts)
     #print(times)
-    stopWatch = time()
+    
+    #stopWatch = time()
     i = 0
-    pyautogui.mouseDown(_pause = False)
-    print(pts)
+    """
+    #print(pts)
     for pt in pts:
-        dragTo(pt[0] + 3, pt[1] + 5, times[i])
-        i += 1
-    print("Drag Time: ", round(time()-stopWatch,5))
-    pyautogui.mouseUp(_pause = False)
+        dragTo(pt[0] + 3, pt[1] + 5, 0)
+        #i += 1
+    #print("Drag Time: ", round(time()-stopWatch,5))
 
-    if roundNumber % 9 == 0 and roundNumber < 30: numberOfMagikoopas += 1
-    roundNumber += 1 
+
+    #if roundNumber % 9 == 0 and roundNumber < 30: numberOfMagikoopas += 1
+    #roundNumber += 1 
+    pts = []
     
     
