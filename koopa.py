@@ -5,6 +5,7 @@ import numpy as np
 
 # Current Computer high score: 352
 # threshold = .75
+# no pause
 
 # first problems solved: 
 # being stupid
@@ -88,11 +89,11 @@ def koopaYIntercept(x1,y1,x2,y2):
     return intercept
 
 def moveBowser(x,y):
-    pyautogui.moveTo(x,y)
+    pyautogui.moveTo(x,y, _pause=False)
 
 # one time operation
 loadKoopaSprites()
-pyautogui.PAUSE = .02
+pyautogui.PAUSE = .01
 #testSpriteDetection()
 #exit()
 # Initial mouse down coordinates of bowser
