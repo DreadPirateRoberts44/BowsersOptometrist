@@ -95,6 +95,7 @@ def moveBowser(x,y):
 
 # one time operation
 loadKoopaSprites()
+pyautogui.PAUSE = .03
 #testSpriteDetection()
 #exit()
 # Initial mouse down coordinates of bowser
