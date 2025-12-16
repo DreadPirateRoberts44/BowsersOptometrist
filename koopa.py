@@ -2,9 +2,9 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-import time
 
-# Current Computer high score: 48
+# Current Computer high score: 352
+# threshold = .75
 
 # first problems solved: 
 # being stupid
@@ -28,7 +28,7 @@ subScreenHeight=462
 
 koopaSprites = []
 
-koopaRunningArea = [ subScreenX + 86, subScreenY + 158, 200, 240]
+koopaRunningArea = [ subScreenX + 86, subScreenY + 158, 100, 240]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -66,7 +66,7 @@ def testSpriteDetection():
 
     w, h = needle.shape[::-1]
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8
+    threshold = 0.73
     loc = np.where(res >= threshold)
     x = 10000
     y = 0
@@ -92,7 +92,7 @@ def moveBowser(x,y):
 
 # one time operation
 loadKoopaSprites()
-pyautogui.PAUSE = .03
+pyautogui.PAUSE = .02
 #testSpriteDetection()
 #exit()
 # Initial mouse down coordinates of bowser
@@ -117,7 +117,7 @@ while True:
     except:
         exit()
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
+    threshold = 0.75
     loc = np.where(res >= threshold)
     x = 10000
     y = 0
@@ -126,7 +126,6 @@ while True:
             x = pt[0]
             y = pt[1]
     if x == 10000: continue
-    #y = koopaYIntercept(x,y,broqueX,broqueY)
     moveBowser(bowserX, (y + 11) * subScreenScale + subScreenY + 158)
         
         
