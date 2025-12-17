@@ -5,7 +5,7 @@ import numpy as np
 from time import sleep
 import pydirectinput
 
-# Current Computer high score: 86
+# Current Computer high score: 105
 
 # first problems solved: 
 # being stupid
@@ -28,8 +28,8 @@ subScreenHeight=462
 
 
 shellSprite = []
-marioArea = [subScreenX + 130, subScreenY + 158, 100, 120]
-luigiArea = [subScreenX + 130, subScreenY + 158 + 120, 100, 120]
+marioArea = [subScreenX + 150, subScreenY + 158, 100, 120]
+luigiArea = [subScreenX + 150, subScreenY + 158 + 120, 100, 120]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
