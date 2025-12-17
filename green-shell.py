@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from time import sleep
 import pydirectinput
+import copy
 
 # Current Computer high score: 105
 
@@ -26,19 +27,42 @@ subScreenY=552
 subScreenWidth=616
 subScreenHeight=462
 
+subScreen =[subScreenX, subScreenY, subScreenWidth, subScreenHeight]
 
 shellSprite = []
-marioArea = [subScreenX + 150, subScreenY + 158, 100, 120]
-luigiArea = [subScreenX + 150, subScreenY + 158 + 120, 100, 120]
+marioArea = [subScreenX + 135, subScreenY + 158, 100, 120]
+luigiArea = [subScreenX + 135, subScreenY + 158 + 120, 100, 120]
+xOffset = 0
+yOffset = 0
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
 def getScreenshot(isMario = True):
-    if isMario: area = marioArea
-    else: area = luigiArea
+    if isMario: 
+        area = copy.deepcopy(marioArea)
+        area[1] += yOffset
+    else: 
+        area = copy.deepcopy(luigiArea)
+        area[1] -= yOffset
+    area[0] += xOffset
+    
+
     # Takes a screenshot based on which screen is required. 
     screenshot = pyautogui.screenshot(
         region= area)
+    size = screenshot.size
+    scale = subScreenScale
+    # Scales image to match original DS screen size. 
+    screenshot = screenshot.resize((int(size[0] / scale), 
+        int(size[1] / scale) ), Image.Resampling.NEAREST)
+    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_BGR2GRAY)
+
+# Take a screenshot of the area the koopas are running through
+# return image in cv2.COLOR_BGR2GRAY format
+def getFullScreenshot(isMario = True):
+    # Takes a screenshot based on which screen is required. 
+    screenshot = pyautogui.screenshot(
+        region= subScreen)
     size = screenshot.size
     scale = subScreenScale
     # Scales image to match original DS screen size. 
@@ -74,18 +98,36 @@ def testSpriteDetection(isMario = True):
     cv2.waitKey(0)
     print(len(loc[0]))
 
+def testOffsetPaths(isMario = True):
+    haystack = getFullScreenshot(isMario)
+    img_rgb =cv2.cvtColor(haystack, cv2.COLOR_RGB2BGR)
+    xOffset = 0
+    yOffset = 0
+    if isMario:
+        area = marioArea
+    else:
+        area = luigiArea
+    i = 0
+    while i < 10:
+        cv2.rectangle(img_rgb, (area[0] + xOffset, area[1] + yOffset), (area[0] + area[2] + xOffset, area[1] + area[3] + yOffset), (0,0,255), 2)
+        xOffset += 2
+        yOffset += 1
+        i += 1
+    cv2.imshow('Green Shell', img_rgb)
+    cv2.waitKey(0)
 
 # one time operation
 loadShellSprite()
 #testSpriteDetection(True)
 #testSpriteDetection(False)
+#testOffsetPaths()
 #exit()
 
 # convert our koopa sprite(s) to a needle image to be found in the screenshot
 # currently both needle and haystack are in grayscale
 needle = shellSprite[0]
 isMario = False
-
+i = 1
 # loop while playing
 while True:
     # get screenshot of the area koopas are running through
@@ -97,9 +139,13 @@ while True:
     threshold = 0.7
     loc = np.where(res >= threshold)
     if len(loc[0]) > 0:
-        if isMario: key = 'x'
+        if isMario:
+            key = 'x'
         else:  key = 'z'
         pydirectinput.press(key, _pause=False)
         isMario = not isMario
-        
+        if i % 10 == 0:
+            xOffset += 4
+            yOffset += 1
+        i += 1
         
