@@ -2,11 +2,12 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import sleep
+from time import sleep,time
 import pydirectinput
 import copy
+import matplotlib.pyplot as plt
 
-# Current Computer high score: 105
+# Current Computer high score: 131
 
 # first problems solved: 
 # being stupid
@@ -30,8 +31,8 @@ subScreenHeight=462
 subScreen =[subScreenX, subScreenY, subScreenWidth, subScreenHeight]
 
 shellSprite = []
-marioArea = [subScreenX + 135, subScreenY + 158, 100, 120]
-luigiArea = [subScreenX + 135, subScreenY + 158 + 120, 100, 120]
+marioArea = [subScreenX + 135, subScreenY + 158 + 20, 100, 90]
+luigiArea = [subScreenX + 135, subScreenY + 158 + 140, 100, 90]
 xOffset = 0
 yOffset = 0
 
@@ -108,10 +109,20 @@ def testOffsetPaths(isMario = True):
     else:
         area = luigiArea
     i = 0
-    while i < 10:
-        cv2.rectangle(img_rgb, (area[0] + xOffset, area[1] + yOffset), (area[0] + area[2] + xOffset, area[1] + area[3] + yOffset), (0,0,255), 2)
-        xOffset += 2
-        yOffset += 1
+    print(area)
+    while i < 40:
+        cv2.rectangle(img_rgb, 
+                      (
+                          int((area[0] + xOffset - subScreenX) / subScreenScale),
+                            int((area[1] + yOffset - subScreenY) / subScreenScale)
+                        ), 
+                     (int((area[0] + area[2] + xOffset - subScreenX) / subScreenScale),
+                      int((area[1] + area[3] + yOffset - subScreenY)/subScreenScale))
+                      , (0,0,255), 2)
+        xOffset += 4
+        if isMario:
+            yOffset += 1
+        else: yOffset -= 1
         i += 1
     cv2.imshow('Green Shell', img_rgb)
     cv2.waitKey(0)
@@ -121,12 +132,19 @@ loadShellSprite()
 #testSpriteDetection(True)
 #testSpriteDetection(False)
 #testOffsetPaths()
+#testOffsetPaths(False)
 #exit()
-
+#pydirectinput.PAUSE = .03
 # convert our koopa sprite(s) to a needle image to be found in the screenshot
 # currently both needle and haystack are in grayscale
 needle = shellSprite[0]
 isMario = False
+roundBuffer = 10
+inputs = []
+# how long it waited between each button push
+times = []
+stopWatch = 0
+threshold = .7
 i = 1
 # loop while playing
 while True:
@@ -134,18 +152,43 @@ while True:
     try:
         haystack = getScreenshot(isMario)
     except:
-        exit()
+        print(inputs[len(inputs) - 1])
+        break
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
+    
     loc = np.where(res >= threshold)
     if len(loc[0]) > 0:
         if isMario:
             key = 'x'
         else:  key = 'z'
         pydirectinput.press(key, _pause=False)
+        difference = round(time() - stopWatch, 3)
+        times.append(difference)
+        stopWatch = time()
         isMario = not isMario
-        if i < 110 and i % 10 == 0:
+        inputs.append(key)
+        if i % roundBuffer == 0:
             xOffset += 4
             yOffset += 1
+        if i == 100:
+            threshold = .66
+        #    roundBuffer = 2
         i += 1
         
+times.pop(0)
+xValues = []
+i = 0
+while i < len(times):
+    xValues.append(i + 1)
+    i += 1
+print(times)
+print(xValues)
+
+plt.plot(xValues, times)
+
+plt.xlabel('Index')
+plt.ylabel('Time Between')
+plt.title('A Basic Python Graph')
+
+# Displaying the plot
+plt.show()
