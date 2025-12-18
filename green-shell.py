@@ -144,7 +144,7 @@ while True:
         else:  key = 'z'
         pydirectinput.press(key, _pause=False)
         isMario = not isMario
-        if i % 10 == 0:
+        if i < 110 and i % 10 == 0:
             xOffset += 4
             yOffset += 1
         i += 1
