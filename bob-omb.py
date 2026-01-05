@@ -2,21 +2,8 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import sleep
 
-# Current Computer high score: 446
-
-# Designed to run in vertical mode (for best visual effect)
-# This is very general, taken from the mario ds
-# Goomba storm at least won't need the top screen at all, and only a portion of the bottom screen
-"""
-# Refers to the top screen of the DS unneeded for goomba storm
-mainScreenScale=2.35
-mainScreenX=652
-mainScreenY=89
-mainScreenWidth=615
-mainScreenHeight=460
-"""
+# Current Computer high score: 999
 
 # Refers to the bottom screen of the DS
 #subScreenScale=28/11
@@ -123,9 +110,6 @@ loadBobombSprites()
 madameNeedle = loadMadameSprite()
 bobombNeedle = bobombSprites[0]
 pyautogui.PAUSE = .05
-#testMadameDetection(madameNeedle)
-#testSpriteDetection()
-#exit()
 
 w, h = madameNeedle.shape[::-1]
 w2, h2 = bobombNeedle.shape[::-1]
@@ -145,19 +129,18 @@ while True:
     loc = np.where(res >= threshold)
     if len(loc[0]) == 0: continue
 
-    sleep(.05)
-    # fails to recognize in bottom right corner
-    madameHaystack = getScreenshot(False)
-
-    # Determine Madame Y position
-    res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.9
-    loc = np.where(res >= threshold)
-    for pt in zip(*loc[::-1]):
-        madameY = pt[1] + h
-        break
-    
-    print(loc)
+    foundMadame = False
+    # Search for madame until we have her new location after we know bob-ombs are ready
+    while not foundMadame:
+        madameHaystack = getScreenshot(False)
+        # Determine Madame Y position
+        res = cv2.matchTemplate(madameHaystack,madameNeedle,cv2.TM_CCOEFF_NORMED)
+        threshold = 0.9
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            madameY = pt[1] + h
+            foundMadame = True
+            break
 
     for pt in bombLocations:
         moveBomb(pt[0],pt[1] + h2/2, madameY)
