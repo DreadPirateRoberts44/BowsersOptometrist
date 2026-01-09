@@ -1,5 +1,5 @@
 # BowsersOptometrist
 
-Image Processing Program designed to destroy Bowsers Inside Story
+At some point I'll update the documentation on here more.
 
-Goomba Storm Current high score: 399
+For now, linking to the Youtube Playlist covering the design process: https://www.youtube.com/playlist?list=PLXznEO7jV7Ujtlp3kGP7oe-SHcVIcDSOX
