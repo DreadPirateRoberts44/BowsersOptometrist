@@ -2,10 +2,8 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import sleep
+#from time import sleep
 import pydirectinput
-import copy
-
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -67,8 +65,91 @@ def testSpriteDetection(needle):
 # one time operation
 readyCannonNeedle = loadNeedle("readied-barrel")
 marioNeedle = loadNeedle("mario")
-luigiNeedle = loadNeedle("luigi-hat")
+luigiNeedle = loadNeedle("luigi")
 
 #testSpriteDetection(readyCannonNeedle)
-testSpriteDetection(marioNeedle)
-testSpriteDetection(luigiNeedle)
+#testSpriteDetection(marioNeedle)
+#testSpriteDetection(luigiNeedle)
+
+brosLocations = [] # format ((x,y), isMario)
+
+# loop while playing
+while True:
+    # get screenshot to find mario/luigi
+    try:
+        haystack = getScreenshot()
+    except:
+        exit()
+    res = cv2.matchTemplate(haystack,marioNeedle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.8
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):
+        usePoint = True
+        for usedPt in brosLocations:
+            if abs(pt[0]-usedPt[0][0]) < 10 and abs(pt[1]-usedPt[0][1]) < 10:
+                usePoint = False
+                break
+        if usePoint: 
+            brosLocations.append((pt, True))
+    
+    res = cv2.matchTemplate(haystack,luigiNeedle,cv2.TM_CCOEFF_NORMED)
+    threshold = 0.6
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):
+        usePoint = True
+        for usedPt in brosLocations:
+            if abs(pt[0]-usedPt[0][0]) < 10 and abs(pt[1]-usedPt[0][1]) < 10:
+                usePoint = False
+                break
+        if usePoint: 
+            brosLocations.append((pt, False))
+    
+    # if we haven't found all marios/luigis, search again
+    if len(brosLocations) < 8:
+        continue
+    elif len(brosLocations) > 8: # we should never have more than 4 of each bro
+        print(brosLocations)
+        exit()
+    
+    # start checking for readied barrels until all have been fired
+    while len(brosLocations) > 0:
+        try:
+            haystack = getScreenshot()
+        except:
+            exit()
+        res = cv2.matchTemplate(haystack,readyCannonNeedle,cv2.TM_CCOEFF_NORMED)
+        threshold = 0.95
+        loc = np.where(res >= threshold)
+        # keep looking for a cannon until found
+        if len(loc[0]) == 0: continue
+
+        # get cannon x,y coordinates
+        cannonLocation = (0,0)
+        for pt in zip(*loc[::-1]):
+            cannonLocation = pt
+            break
+
+        # compare to the coordinates of where each brother was found
+        # whichever is closes is the brother in the loaded barrel
+        closestDistance = 1000000
+        closestIndex = 0
+        i = 0
+        while i < len(brosLocations):
+            # this distance formula should suffice, and should be a little faster
+            distance = abs(cannonLocation[0] - brosLocations[i][0][0]) + abs(cannonLocation[1] - brosLocations[i][0][1])
+            if distance < closestIndex:
+                closestIndex = i
+                closestDistance = distance
+            i += 1
+        
+        bro = brosLocations.pop(closestIndex)
+
+        # checking if the bro found was mario
+        if bro[1]:
+            key = 'x'
+        else:  key = 'z'
+        print(bro[1])
+        pydirectinput.press(key, _pause=False)
+
+
+
