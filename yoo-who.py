@@ -2,7 +2,7 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-#from time import sleep
+from time import sleep
 import pydirectinput
 
 # Designed to run in vertical mode (for best visual effect)
@@ -121,8 +121,8 @@ while True:
         threshold = 0.95
         loc = np.where(res >= threshold)
         # keep looking for a cannon until found
-        if len(loc[0]) == 0: continue
-
+        if len(loc[0]) == 0:
+            continue
         # get cannon x,y coordinates
         cannonLocation = (0,0)
         for pt in zip(*loc[::-1]):
@@ -150,6 +150,8 @@ while True:
         else:  key = 'z'
         print(bro[1])
         pydirectinput.press(key, _pause=False)
+        sleep(1)
+
 
 
 
