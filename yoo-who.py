@@ -2,8 +2,10 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import sleep
+from time import sleep,time
 import pydirectinput
+
+# highscore 122 A-rank
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -16,7 +18,7 @@ subScreenHeight=462
 
 subScreen =[subScreenX, subScreenY, subScreenWidth, subScreenHeight]
 
-area = [subScreenX, subScreenY, 300, 400]
+area = [subScreenX, subScreenY + 60, 260, 250]
 
 # Take a screenshot of the area the koopas are running through
 # return image in cv2.COLOR_BGR2GRAY format
@@ -52,7 +54,7 @@ def testSpriteDetection(needle):
 
     w, h = needle.shape[::-1]
     res = cv2.matchTemplate(haystack,needle,cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8 #barrel can be .95. Mario could be done with .8, luigi needs .6, but then need filtered
+    threshold = 0.6 #barrel can be .95. Mario could be done with .8, luigi needs .6, but then need filtered
                     # luigi has a lot of variance in exacly how he poses
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
@@ -65,7 +67,7 @@ def testSpriteDetection(needle):
 
 
 # one time operation
-readyCannonNeedle = loadNeedle("readied-barrel")
+readyCannonNeedle = loadNeedle("readied-barrel-2")
 marioNeedle = loadNeedle("mario")
 luigiNeedle = loadNeedle("luigi")
 
@@ -117,6 +119,8 @@ while True:
                                   # and search again anytime we don't have exactly 8
                                   # but this should be faster, and until there's a reason against, I'm doing this
     lastCannonLocation = (0,0)
+    reset = False
+    t = 0
     # start checking for readied barrels until all have been fired
     while len(brosLocations) > 0:
         try:
@@ -124,10 +128,13 @@ while True:
         except:
             exit()
         res = cv2.matchTemplate(haystack,readyCannonNeedle,cv2.TM_CCOEFF_NORMED)
-        threshold = 0.95
+        threshold = 0.8
         loc = np.where(res >= threshold)
         # keep looking for a cannon until found
         if len(loc[0]) == 0:
+            if reset:
+                reset = False
+                print("Time taken to disappear: ", round(time()-t,5))
             continue
         # get cannon x,y coordinates
         cannonLocation = (0,0)
@@ -137,7 +144,12 @@ while True:
         
         # keep looking if we found the same cannon we just found
         if abs(cannonLocation[0] - lastCannonLocation[0]) < 10 and abs(cannonLocation[1] - lastCannonLocation[1]) < 10:
+            if not reset:
+                reset = True
+                t = time()
             continue
+        
+        
 
         # compare to the coordinates of where each brother was found
         # whichever is closes is the brother in the loaded barrel
