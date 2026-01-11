@@ -110,7 +110,7 @@ while True:
     elif len(brosLocations) > 8: # we should never have more than 4 of each bro
         print(brosLocations)
         exit()
-    
+    print(brosLocations)
     # start checking for readied barrels until all have been fired
     while len(brosLocations) > 0:
         try:
@@ -126,9 +126,9 @@ while True:
         # get cannon x,y coordinates
         cannonLocation = (0,0)
         for pt in zip(*loc[::-1]):
-            cannonLocation = pt
+            cannonLocation = (pt[0], pt[1] + 10)
             break
-
+        
         # compare to the coordinates of where each brother was found
         # whichever is closes is the brother in the loaded barrel
         closestDistance = 1000000
@@ -137,18 +137,23 @@ while True:
         while i < len(brosLocations):
             # this distance formula should suffice, and should be a little faster
             distance = abs(cannonLocation[0] - brosLocations[i][0][0]) + abs(cannonLocation[1] - brosLocations[i][0][1])
-            if distance < closestIndex:
+            if distance < closestDistance:
                 closestIndex = i
                 closestDistance = distance
             i += 1
-        
+        """
+        print("New Round")
+        print(cannonLocation)
+        print(closestIndex)
+        print(brosLocations)
+        """
         bro = brosLocations.pop(closestIndex)
 
         # checking if the bro found was mario
         if bro[1]:
             key = 'x'
         else:  key = 'z'
-        print(bro[1])
+        #print(bro[1])
         pydirectinput.press(key, _pause=False)
         sleep(1)
 
