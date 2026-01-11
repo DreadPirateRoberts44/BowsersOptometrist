@@ -116,7 +116,7 @@ while True:
         exit()                    # Theoretcially, we could clear the brosLocations
                                   # and search again anytime we don't have exactly 8
                                   # but this should be faster, and until there's a reason against, I'm doing this
-    #print(brosLocations)
+    lastCannonLocation = (0,0)
     # start checking for readied barrels until all have been fired
     while len(brosLocations) > 0:
         try:
@@ -135,6 +135,10 @@ while True:
             cannonLocation = (pt[0], pt[1] + 10)
             break
         
+        # keep looking if we found the same cannon we just found
+        if abs(cannonLocation[0] - lastCannonLocation[0]) < 10 and abs(cannonLocation[1] - lastCannonLocation[1]) < 10:
+            continue
+
         # compare to the coordinates of where each brother was found
         # whichever is closes is the brother in the loaded barrel
         closestDistance = 1000000
@@ -147,21 +151,17 @@ while True:
                 closestIndex = i
                 closestDistance = distance
             i += 1
-        """
-        print("New Round")
-        print(cannonLocation)
-        print(closestIndex)
-        print(brosLocations)
-        """
+
         bro = brosLocations.pop(closestIndex)
 
         # checking if the bro found was mario
         if bro[1]:
             key = 'x'
         else:  key = 'z'
-        #print(bro[1])
         pydirectinput.press(key, _pause=False)
-        sleep(1)
+        lastCannonLocation = cannonLocation
+        
+
 
 
 
