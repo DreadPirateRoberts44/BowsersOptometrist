@@ -57,6 +57,8 @@ def testSpriteDetection(needle):
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):
         cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+        #print(pt)
+    #cv2.rectangle(img_rgb, (44,79), (44 + w, 79 + h), (0,0,255), 2)
     cv2.imshow('Ready Cannon', img_rgb)
     cv2.waitKey(0)
     print(len(loc[0]))
@@ -70,6 +72,7 @@ luigiNeedle = loadNeedle("luigi")
 #testSpriteDetection(readyCannonNeedle)
 #testSpriteDetection(marioNeedle)
 #testSpriteDetection(luigiNeedle)
+#exit()
 
 brosLocations = [] # format ((x,y), isMario)
 
@@ -107,10 +110,13 @@ while True:
     # if we haven't found all marios/luigis, search again
     if len(brosLocations) < 8:
         continue
-    elif len(brosLocations) > 8: # we should never have more than 4 of each bro
-        print(brosLocations)
-        exit()
-    print(brosLocations)
+    elif len(brosLocations) == 9: # This seems to be the result of detecting mario as he jumps into a new barrel
+        brosLocations.pop(0)
+    elif len(brosLocations) > 9:  # anything else is currently unidentified
+        exit()                    # Theoretcially, we could clear the brosLocations
+                                  # and search again anytime we don't have exactly 8
+                                  # but this should be faster, and until there's a reason against, I'm doing this
+    #print(brosLocations)
     # start checking for readied barrels until all have been fired
     while len(brosLocations) > 0:
         try:
