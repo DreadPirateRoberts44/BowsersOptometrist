@@ -2,10 +2,10 @@ import pyautogui
 from PIL import Image
 import cv2
 import numpy as np
-from time import sleep,time
+from time import sleep
 import pydirectinput
 
-# highscore 122 A-rank
+# highscore 121 A-rank
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -119,8 +119,6 @@ while True:
                                   # and search again anytime we don't have exactly 8
                                   # but this should be faster, and until there's a reason against, I'm doing this
     lastCannonLocation = (0,0)
-    reset = False
-    t = 0
     # start checking for readied barrels until all have been fired
     while len(brosLocations) > 0:
         try:
@@ -131,26 +129,13 @@ while True:
         threshold = 0.8
         loc = np.where(res >= threshold)
         # keep looking for a cannon until found
-        if len(loc[0]) == 0:
-            if reset:
-                reset = False
-                print("Time taken to disappear: ", round(time()-t,5))
-            continue
+        if len(loc[0]) == 0: continue
         # get cannon x,y coordinates
         cannonLocation = (0,0)
         for pt in zip(*loc[::-1]):
             cannonLocation = (pt[0], pt[1] + 10)
             break
-        
-        # keep looking if we found the same cannon we just found
-        if abs(cannonLocation[0] - lastCannonLocation[0]) < 10 and abs(cannonLocation[1] - lastCannonLocation[1]) < 10:
-            if not reset:
-                reset = True
-                t = time()
-            continue
-        
-        
-
+    
         # compare to the coordinates of where each brother was found
         # whichever is closes is the brother in the loaded barrel
         closestDistance = 1000000
@@ -172,6 +157,7 @@ while True:
         else:  key = 'z'
         pydirectinput.press(key, _pause=False)
         lastCannonLocation = cannonLocation
+        sleep(.343)
         
 
 
