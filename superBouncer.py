@@ -16,7 +16,7 @@ subScreenY=552
 subScreenWidth=616
 subScreenHeight=462
 
-area = [subScreenX,subScreenY-subScreenHeight,subScreenWidth,subScreenHeight * 2]
+area = [subScreenX + 357,subScreenY-subScreenHeight,200,687]
 
 # Take a screenshot of the area the koopas are running through
 # return image in format
@@ -33,19 +33,39 @@ def getScreenshot():
     return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
 
 
-def testLuigiDetection():
+def testLuigiDetectionMask():
     # in BGR
     haystack = getScreenshot()
     img_rgb = cv2.cvtColor(haystack, cv2.COLOR_BGR2RGB)
+    t = time()
     lower_yellow = np.array([130, 220, 10])
     upper_yellow = np.array([135, 224, 20])
     mask = cv2.inRange(haystack, lower_yellow, upper_yellow)
     coordinates = cv2.findNonZero(mask)
     for point in coordinates:
         cv2.rectangle(img_rgb, (point[0][0],point[0][1]), (point[0][0] + 1, point[0][1] + 1), (0,0,255), 2)
+    print("Time to find with Mask: ", round(time()-t,5))
     cv2.imshow('Weegi', img_rgb)
     cv2.waitKey(0)
 
+def testLuigiDetectionExact():
+    # in BGR
+    haystack = getScreenshot()
+    img_rgb = cv2.cvtColor(haystack, cv2.COLOR_BGR2RGB)
+    t = time()
+    # Define the blue colour we want to find - remember OpenCV uses BGR ordering
+    luigi = [132,222,16]
+
+    # Get X and Y coordinates of all blue pixels
+    Y, X = np.where(np.all(haystack==luigi,axis=2))
+    i = 0
+    while i < len(X):
+        cv2.rectangle(img_rgb, (X[i],Y[i]), (X[i] + 1, Y[i] + 1), (0,0,255), 2)
+        i += 1
+    print("Time to find with Exact: ", round(time()-t,5))
+    cv2.imshow('Weegi', img_rgb)
+    cv2.waitKey(0)
 
 # one time operation
-testLuigiDetection()
+testLuigiDetectionMask()
+testLuigiDetectionExact()
