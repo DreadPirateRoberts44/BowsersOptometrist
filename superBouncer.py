@@ -30,11 +30,12 @@ def getScreenshot():
     # Scales image to match original DS screen size. 
     screenshot = screenshot.resize((int(size[0] / scale), 
         int(size[1] / scale) ), Image.Resampling.NEAREST)
-    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+    return np.array(screenshot) # updated to not convert to BGR, should save time
 
-
+# if we switch back to this method
+# agree on color format
 def testLuigiDetectionMask():
-    # in BGR
+    # currently assumes BGR, which is wrong
     haystack = getScreenshot()
     img_rgb = cv2.cvtColor(haystack, cv2.COLOR_BGR2RGB)
     t = time()
@@ -49,23 +50,42 @@ def testLuigiDetectionMask():
     cv2.waitKey(0)
 
 def testLuigiDetectionExact():
-    # in BGR
+    # in RGB
     haystack = getScreenshot()
-    img_rgb = cv2.cvtColor(haystack, cv2.COLOR_BGR2RGB)
+    #img_rgb = cv2.cvtColor(haystack, cv2.COLOR_BGR2RGB)
     t = time()
     # Define the blue colour we want to find - remember OpenCV uses BGR ordering
-    luigi = [132,222,16]
+    luigi = [16,222,132]
 
     # Get X and Y coordinates of all blue pixels
     Y, X = np.where(np.all(haystack==luigi,axis=2))
     i = 0
     while i < len(X):
-        cv2.rectangle(img_rgb, (X[i],Y[i]), (X[i] + 1, Y[i] + 1), (0,0,255), 2)
+        cv2.rectangle(haystack, (X[i],Y[i]), (X[i] + 1, Y[i] + 1), (0,0,255), 2)
         i += 1
     print("Time to find with Exact: ", round(time()-t,5))
-    cv2.imshow('Weegi', img_rgb)
+    x = round(haystack.shape[1]/2)
+    print(x)
+    cv2.rectangle(haystack, (x,100), (x + 1, 255), (0,0,255), 2)
+    cv2.imshow('Weegi', haystack)
     cv2.waitKey(0)
 
 # one time operation
-testLuigiDetectionMask()
-testLuigiDetectionExact()
+#testLuigiDetectionMask()
+#testLuigiDetectionExact()
+
+luigiColor = [16,222,132]
+midPoint = 42 # (screenshot width / scale factor) / 2 
+midPointRange = 15
+while True:
+    haystack = getScreenshot()
+    # Get X and Y coordinates for colors that match luigi
+    Y, X = np.where(np.all(haystack==luigiColor,axis=2))
+    if len(X) == 0:
+        continue
+    elif X[0] < (midPoint - midPointRange):
+        key = "right"
+    elif X[0] > (midPoint + midPointRange):
+        key = "left"
+    pydirectinput.press(key, _pause=False)
+    
