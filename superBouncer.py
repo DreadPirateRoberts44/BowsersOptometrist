@@ -77,15 +77,22 @@ def testLuigiDetectionExact():
 luigiColor = [16,222,132]
 midPoint = 42 # (screenshot width / scale factor) / 2 
 midPointRange = 15
+
+jumpButtonPressHeight = round((subScreenY - 100) / subScreenScale)
 while True:
     haystack = getScreenshot()
     # Get X and Y coordinates for colors that match luigi
     Y, X = np.where(np.all(haystack==luigiColor,axis=2))
+
     if len(X) == 0:
         continue
+    elif Y[0] >= jumpButtonPressHeight:
+        key = 'z'
     elif X[0] < (midPoint - midPointRange):
         key = "right"
     elif X[0] > (midPoint + midPointRange):
         key = "left"
     pydirectinput.press(key, _pause=False)
+    
+
     
