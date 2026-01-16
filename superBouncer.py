@@ -5,7 +5,20 @@ import numpy as np
 from time import sleep,time
 import pydirectinput
 
-# highscore 23 B-Rank
+# highscore 32 A-Rank
+# could be improved
+# longer pauses mean longer inputs, move faster, less screenshots needed
+# but have the problem of overexaggerating the input
+# shorter pauses don't move as fast, don't over shoot
+# but can struggle to move quickly enough. There's likely a way to find a better balance
+# Advanced techniques could involve adjusting what is done based on luigi's horizontal velocity
+# Finding a way to improve screenshot search speed would also be help, especially with shorter inputs
+# we should only need to search from the top of the screen to a little below the jump button press height
+# since below that we don't actually check
+# additionally, there could be some potential to only check half of the horizontal search space
+# If luigi isn't found, he must be in the other half
+# To assist with the previous line, we would also need to check for the ball to determine height
+# which might also have some other benefits
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -81,6 +94,7 @@ midPointRange = 0 #15
 
 jumpButtonPressHeight = round((subScreenY - 150) / subScreenScale)
 
+pydirectinput.PAUSE = .07
 
 # start game
 """ This is for completions sake. It's a pain to rely on during dev
@@ -106,7 +120,7 @@ while True:
         key = "left"
     pydirectinput.press(key, _pause=False)
     if key =='z':
-        sleep(.42) #.38 if y offset is 100
+        sleep(.58) #.38 if y offset is 100
         pydirectinput.press('x', _pause=False)
 
     
