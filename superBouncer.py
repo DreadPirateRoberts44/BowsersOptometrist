@@ -5,7 +5,7 @@ import numpy as np
 from time import sleep,time
 import pydirectinput
 
-# highscore 122 A-rank
+# highscore 23 B-Rank
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -64,7 +64,7 @@ def testLuigiDetectionExact():
         cv2.rectangle(haystack, (X[i],Y[i]), (X[i] + 1, Y[i] + 1), (0,0,255), 2)
         i += 1
     print("Time to find with Exact: ", round(time()-t,5))
-    x = round(haystack.shape[1]/2)
+    x = round(haystack.shape[1] / 2) + 5
     print(x)
     cv2.rectangle(haystack, (x,100), (x + 1, 255), (0,0,255), 2)
     cv2.imshow('Weegi', haystack)
@@ -72,13 +72,14 @@ def testLuigiDetectionExact():
 
 # one time operation
 #testLuigiDetectionMask()
-#testLuigiDetectionExact()
+#estLuigiDetectionExact()
+#exit()
 
 luigiColor = [16,222,132]
-midPoint = 42 # (screenshot width / scale factor) / 2 
+midPoint = 47 #(screenshot width / scale factor) / 2 = 42, offset 5 to the right, luigi's green isn't his center
 midPointRange = 0 #15
 
-jumpButtonPressHeight = round((subScreenY - 100) / subScreenScale)
+jumpButtonPressHeight = round((subScreenY - 150) / subScreenScale)
 
 
 # start game
@@ -93,18 +94,19 @@ while True:
     haystack = getScreenshot()
     # Get X and Y coordinates for colors that match luigi
     Y, X = np.where(np.all(haystack==luigiColor,axis=2))
-    
+
     if len(X) == 0:
         continue
     elif Y[0] >= jumpButtonPressHeight:
         key = 'z'
+        print(Y[0])
     elif X[0] < (midPoint - midPointRange):
         key = "right"
     elif X[0] > (midPoint + midPointRange):
         key = "left"
     pydirectinput.press(key, _pause=False)
     if key =='z':
-        sleep(.38)
+        sleep(.42) #.38 if y offset is 100
         pydirectinput.press('x', _pause=False)
 
     
