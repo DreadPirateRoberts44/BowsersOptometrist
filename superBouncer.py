@@ -5,7 +5,10 @@ import numpy as np
 from time import sleep,time
 import pydirectinput
 
-# highscore 23 B-Rank
+# highscore 24 B-Rank
+#Hay Time 2.3855
+#Button Time 10.41185
+
 
 # Designed to run in vertical mode (for best visual effect)
 # This is very general, taken from the mario ds
@@ -81,6 +84,8 @@ midPointRange = 0 #15
 
 jumpButtonPressHeight = round((subScreenY - 150) / subScreenScale)
 
+pydirectinput.PAUSE = 0.06
+
 
 # start game
 """ This is for completions sake. It's a pain to rely on during dev
@@ -90,25 +95,42 @@ sleep(3)
 pydirectinput.press('x', _pause=False)
 """
 
-while True:
-    haystack = getScreenshot()
-    # Get X and Y coordinates for colors that match luigi
-    Y, X = np.where(np.all(haystack==luigiColor,axis=2))
+hayTime = 0
+buttonTime = 0
+luigiFound = False
 
-    if len(X) == 0:
-        continue
-    elif Y[0] >= jumpButtonPressHeight:
-        key = 'z'
-        print(Y[0])
-    elif X[0] < (midPoint - midPointRange):
-        key = "right"
-    elif X[0] > (midPoint + midPointRange):
-        key = "left"
-    pydirectinput.press(key, _pause=False)
-    if key =='z':
-        sleep(.42) #.38 if y offset is 100
-        pydirectinput.press('x', _pause=False)
+try:
+    while True:
+        t = time()
+        haystack = getScreenshot()
+        # Get X and Y coordinates for colors that match luigi
+        Y, X = np.where(np.all(haystack==luigiColor,axis=2))
+        if len(X) == 0:
+            continue
+            
+        X.sort()
+        x = X[round(len(X)/2)]
 
-    
+        hayTime += time() - t
 
-    
+        t = time()
+
+        if Y[0] >= jumpButtonPressHeight:
+            key = 'z'
+            print(Y[0])
+        elif x < (midPoint - midPointRange):
+            key = "right"
+            print("Pressed Right")
+        elif x > (midPoint + midPointRange):
+            key = "left"
+            print("Pressed Left")
+        pydirectinput.press(key, _pause=False)
+        buttonTime += time() - t
+        if key =='z':
+            sleep(.42) #.38 if y offset is 100
+            pydirectinput.press('x', _pause=False)
+            luigiFound = False
+
+except:
+    print("Hay Time", round(hayTime,5))
+    print("Button Time", round(buttonTime,5))
