@@ -76,14 +76,24 @@ def testLuigiDetectionExact():
 
 luigiColor = [16,222,132]
 midPoint = 42 # (screenshot width / scale factor) / 2 
-midPointRange = 15
+midPointRange = 0 #15
 
 jumpButtonPressHeight = round((subScreenY - 100) / subScreenScale)
+
+
+# start game
+""" This is for completions sake. It's a pain to rely on during dev
+pyautogui.click(round(subScreenX + subScreenWidth/2), round(subScreenY + subScreenHeight/2))
+pydirectinput.press('x', _pause=False)
+sleep(3)
+pydirectinput.press('x', _pause=False)
+"""
+
 while True:
     haystack = getScreenshot()
     # Get X and Y coordinates for colors that match luigi
     Y, X = np.where(np.all(haystack==luigiColor,axis=2))
-
+    
     if len(X) == 0:
         continue
     elif Y[0] >= jumpButtonPressHeight:
@@ -93,6 +103,10 @@ while True:
     elif X[0] > (midPoint + midPointRange):
         key = "left"
     pydirectinput.press(key, _pause=False)
+    if key =='z':
+        sleep(.38)
+        pydirectinput.press('x', _pause=False)
+
     
 
     
